@@ -1,4 +1,4 @@
-Using the GitHub App template as a base I created this simple app that installed on a repo allows you to put a mandatory step and wait for the builds triggered to pass to be able to merge 
+Using the GitHub App template as a base I created this simple app that installed on a repo allows you to put a mandatory step and wait for the builds triggered to pass to be able to merge.
 
 ## Install
 
@@ -12,3 +12,6 @@ Using the GitHub App template as a base I created this simple app that installed
 ## Run the server
 
 1. Run `ruby server.rb` or `rerun 'server.rb'` on the command line.
+
+
+PD: it's my first ruby code so feedback is more than welcome =D! 
