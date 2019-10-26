@@ -1,8 +1,8 @@
-You can use this GitHub App template code as a foundation to create any GitHub App you'd like. You can learn how to configure a template GitHub App by following the "[Setting up your development environment](https://developer.github.com/apps/quickstart-guides/setting-up-your-development-environment/)" quickstart guide on developer.github.com.
+Using the GitHub App template as a base I created this simple app that installed on a repo allows you to put a mandatory step and wait for the builds triggered to pass to be able to merge 
 
 ## Install
 
-To run the code, make sure you have [Bundler](http://gembundler.com/) installed; then enter `bundle install` on the command line.
+`bundle install` 
 
 ## Set environment variables
 
@@ -11,5 +11,4 @@ To run the code, make sure you have [Bundler](http://gembundler.com/) installed;
 
 ## Run the server
 
-1. Run `ruby template_server.rb` on the command line.
-1. View the default Sinatra app at `localhost:3000`.
+1. Run `ruby server.rb` or `rerun 'server.rb'` on the command line.
