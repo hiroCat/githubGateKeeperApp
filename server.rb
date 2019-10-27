@@ -14,9 +14,7 @@ class GHAapp < Sinatra::Application
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(ENV['GITHUB_PRIVATE_KEY'].gsub('\n', "\n"))
   WEBHOOK_SECRET = ENV['GITHUB_WEBHOOK_SECRET']
   APP_IDENTIFIER = ENV['GITHUB_APP_IDENTIFIER']
-  configure :development do
-    set :logging, Logger::DEBUG
-  end
+  set :logging, Logger::DEBUG
   before '/event_handler' do
     get_payload_request(request)
     verify_webhook_signature
