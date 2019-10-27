@@ -94,7 +94,6 @@ class GHAapp < Sinatra::Application
       sRuns = [] 
       d = ''
       result.check_runs.each do |r| 
-        logger.debug r.id
         if  r.app.id.to_s != APP_IDENTIFIER
           if r.status == 'completed'
             cRuns << true
