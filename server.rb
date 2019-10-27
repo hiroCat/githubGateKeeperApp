@@ -7,8 +7,8 @@ require 'jwt'         # Authenticates a GitHub App
 require 'time'        # Gets ISO 8601 representation of a Time object
 require 'logger'      # Logs debug statements
 
-set :port, 3000
-set :bind, '0.0.0.0'
+# set :port, 3000
+# set :bind, '0.0.0.0'
 
 class GHAapp < Sinatra::Application
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(ENV['GITHUB_PRIVATE_KEY'].gsub('\n', "\n"))
@@ -91,8 +91,6 @@ class GHAapp < Sinatra::Application
       cRuns = []
       sRuns = [] 
       d = ''
-      logger.debug result.total_count 
-      # result.check_runs.select{|e| e.app.id.to_s != APP_IDENTIFIER}.each do |r| 
       result.check_runs.each do |r| 
         logger.debug r.id
         if  r.app.id.to_s != APP_IDENTIFIER
@@ -112,12 +110,6 @@ class GHAapp < Sinatra::Application
       end
       completedAllRuns = cRuns.all?{|n| n == true}
       allRunsOk = sRuns.all?{|n| n == true}
-      logger.debug "------------cRuns/sRuns"
-      logger.debug cRuns
-      logger.debug sRuns
-      logger.debug "------------b"
-      logger.debug completedAllRuns
-      logger.debug allRunsOk
       case 
       when completedAllRuns == true && allRunsOk == true
         end_check_run(d,'success')
