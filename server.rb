@@ -7,6 +7,7 @@ require 'jwt'         # Authenticates a GitHub App
 require 'time'        # Gets ISO 8601 representation of a Time object
 require 'logger'      # Logs debug statements
 
+# you need to uncoment this to run it localy , comented for the heroku part 
 # set :port, 3000
 # set :bind, '0.0.0.0'
 
@@ -14,6 +15,7 @@ class GHAapp < Sinatra::Application
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(ENV['GITHUB_PRIVATE_KEY'].gsub('\n', "\n"))
   WEBHOOK_SECRET = ENV['GITHUB_WEBHOOK_SECRET']
   APP_IDENTIFIER = ENV['GITHUB_APP_IDENTIFIER']
+  GITHUB_BRANCH = ENV['GITHUB_BRANCH']
   configure :development do
     set :logging, Logger::DEBUG
   end
@@ -69,7 +71,7 @@ class GHAapp < Sinatra::Application
       logger.debug element
       @installation_client.put(
         # for the moment we only want this in master , but could be parametrized for other branches 
-        "repos/"+element+"/branches/master/protection",
+        "repos/"+element+"/branches/"+GITHUB_BRANCH+"/protection",
         {
           "required_status_checks": {
             "strict": true,
