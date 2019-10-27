@@ -24,6 +24,9 @@ class GHAapp < Sinatra::Application
     authenticate_installation(@payload)
   end
 
+  get '/' do 
+    erb :index
+  end 
 
   post '/event_handler' do
     case request.env['HTTP_X_GITHUB_EVENT']
