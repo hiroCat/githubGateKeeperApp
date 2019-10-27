@@ -7,8 +7,8 @@ require 'jwt'         # Authenticates a GitHub App
 require 'time'        # Gets ISO 8601 representation of a Time object
 require 'logger'      # Logs debug statements
 
-# set :port, 3000
-# set :bind, '0.0.0.0'
+set :port, 3000
+set :bind, '0.0.0.0'
 
 class GHAapp < Sinatra::Application
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(ENV['GITHUB_PRIVATE_KEY'].gsub('\n', "\n"))
@@ -43,7 +43,7 @@ class GHAapp < Sinatra::Application
       if @payload['check_run']['app']['id'].to_s === APP_IDENTIFIER
         case @payload['action']
         when 'created'
-          in_process_check_run
+          in_process_check_run(@payload['check_run']['id'])
         when 'rerequested'
           create_check_run
         end
@@ -86,32 +86,49 @@ class GHAapp < Sinatra::Application
 
     def validate_all_checks
       repo = @payload['repository']['full_name']
-      suiteId = @payload['check_run']['check_suite']['id']
-      result = @installation_client.check_runs_for_check_suite(repo, suiteId)
-      di = result.total_count 
-      c = true
+      sha = @payload['check_run']['head_sha']
+      result = @installation_client.check_runs_for_ref(repo, sha)
+      cRuns = []
+      sRuns = [] 
+      d = ''
+      logger.debug result.total_count 
+      # result.check_runs.select{|e| e.app.id.to_s != APP_IDENTIFIER}.each do |r| 
       result.check_runs.each do |r| 
-        if r.status != 'completed' && r.status != 'success'
-          c = false
+        logger.debug r.id
+        if  r.app.id.to_s != APP_IDENTIFIER
+          if r.status == 'completed'
+            cRuns << true
+          else
+            cRuns << false
+          end
+          if r.conclusion == 'success'
+            sRuns << true
+          else
+            sRuns << false
+          end
+        else
+          d = r.id
         end
       end
-      if c == true 
-        sha = @payload['check_run']['head_sha']
-        ra = @installation_client.check_runs_for_ref(repo, sha)
-        d = ''
-        ra.check_runs.each do |r| 
-          logger.debug r.app.id
-          if r.app.id.to_s === APP_IDENTIFIER
-            d = r.id
-          end
-        end
-        logger.debug d
-        end_check_run(d)
+      completedAllRuns = cRuns.all?{|n| n == true}
+      allRunsOk = sRuns.all?{|n| n == true}
+      logger.debug "------------cRuns/sRuns"
+      logger.debug cRuns
+      logger.debug sRuns
+      logger.debug "------------b"
+      logger.debug completedAllRuns
+      logger.debug allRunsOk
+      case 
+      when completedAllRuns == true && allRunsOk == true
+        end_check_run(d,'success')
+      when completedAllRuns == true && allRunsOk == false
+        end_check_run(d,'failure')
+      else
+        in_process_check_run(d)
       end
     end
 
     def create_check_run
-      logger.debug "create check run "
       check_run = @installation_client.post(
         "repos/#{@payload['repository']['full_name']}/check-runs",
         {
@@ -122,10 +139,9 @@ class GHAapp < Sinatra::Application
       )
     end
 
-    def in_process_check_run
-      logger.debug "initate check run "
+    def in_process_check_run(d)
       updated_check_run = @installation_client.patch(
-        "repos/#{@payload['repository']['full_name']}/check-runs/#{@payload['check_run']['id']}",
+        "repos/#{@payload['repository']['full_name']}/check-runs/" + d.to_s,
         {
           accept: 'application/vnd.github.antiope-preview+json',
           name: 'continuous-integration/tfs-builds',
@@ -135,15 +151,14 @@ class GHAapp < Sinatra::Application
       )
     end
 
-    def end_check_run(d)
-      logger.debug "initate check run "
+    def end_check_run(d, c)
       updated_check_run = @installation_client.patch(
         "repos/#{@payload['repository']['full_name']}/check-runs/" + d.to_s ,
         {
           accept: 'application/vnd.github.antiope-preview+json',
           name: 'continuous-integration/tfs-builds',
           status: 'completed',
-          conclusion: 'success',
+          conclusion: c,
           completed_at: Time.now.utc.iso8601,
         }
       )
