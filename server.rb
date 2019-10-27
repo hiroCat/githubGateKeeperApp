@@ -7,8 +7,8 @@ require 'jwt'         # Authenticates a GitHub App
 require 'time'        # Gets ISO 8601 representation of a Time object
 require 'logger'      # Logs debug statements
 
-set :port, 3000
-set :bind, '0.0.0.0'
+# set :port, 3000
+# set :bind, '0.0.0.0'
 
 class GHAapp < Sinatra::Application
   PRIVATE_KEY = OpenSSL::PKey::RSA.new(ENV['GITHUB_PRIVATE_KEY'].gsub('\n', "\n"))
@@ -186,5 +186,5 @@ class GHAapp < Sinatra::Application
 
   end
 
-  run! if __FILE__ == $0
+  # run! if __FILE__ == $0
 end
