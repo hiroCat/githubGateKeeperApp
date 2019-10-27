@@ -186,5 +186,5 @@ class GHAapp < Sinatra::Application
 
   end
 
-  # run! if __FILE__ == $0
+  run! if __FILE__ == $0
 end
